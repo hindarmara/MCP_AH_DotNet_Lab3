@@ -3,10 +3,8 @@ name: Deploy ServerMCP to Azure
 on:
   push:
     branches: [ main ]
-    paths: [ 'ServerMCP/**' ]
   pull_request:
     branches: [ main ]
-    paths: [ 'ServerMCP/**' ]
   workflow_dispatch:
 
 env:
@@ -26,7 +24,9 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
+        dotnet-version: |
+          8.0.x
+          9.0.x
         include-prerelease: true
 
     - name: List files for debugging
@@ -35,15 +35,28 @@ jobs:
         ls -la
         echo "ServerMCP directory contents:"
         ls -la ServerMCP/
+        echo "Checking .NET version:"
+        dotnet --version
+        echo "Checking .NET info:"
+        dotnet --info
 
-    - name: Restore dependencies
-      run: dotnet restore ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/ServerMCP.csproj
+    - name: Clear NuGet cache
+      run: dotnet nuget locals all --clear
 
-    - name: Build application
-      run: dotnet build ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/ServerMCP.csproj --configuration Release --no-restore
+    - name: Restore dependencies with verbose output
+      run: |
+        cd ServerMCP
+        dotnet restore --verbosity detailed
+
+    - name: Build application with verbose output
+      run: |
+        cd ServerMCP
+        dotnet build --configuration Release --verbosity detailed
 
     - name: Publish application
-      run: dotnet publish ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/ServerMCP.csproj --configuration Release --output ./publish
+      run: |
+        cd ServerMCP
+        dotnet publish --configuration Release --output ../publish --verbosity detailed
 
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
