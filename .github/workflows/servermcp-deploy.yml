@@ -1,4 +1,4 @@
-name: Deploy ServerMCP to Azure
+name: Deploy ServerMCP to Azure - Retry
 
 on:
   push:
@@ -24,39 +24,13 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: |
-          8.0.x
-          9.0.x
+        dotnet-version: '9.0.x'
         include-prerelease: true
 
-    - name: List files for debugging
-      run: |
-        echo "Current directory contents:"
-        ls -la
-        echo "ServerMCP directory contents:"
-        ls -la ServerMCP/
-        echo "Checking .NET version:"
-        dotnet --version
-        echo "Checking .NET info:"
-        dotnet --info
-
-    - name: Clear NuGet cache
-      run: dotnet nuget locals all --clear
-
-    - name: Restore dependencies with verbose output
+    - name: Publish application directly
       run: |
         cd ServerMCP
-        dotnet restore --verbosity detailed
-
-    - name: Build application with verbose output
-      run: |
-        cd ServerMCP
-        dotnet build --configuration Release --verbosity detailed
-
-    - name: Publish application
-      run: |
-        cd ServerMCP
-        dotnet publish --configuration Release --output ../publish --verbosity detailed
+        dotnet publish --configuration Release --output ../publish
 
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v3
