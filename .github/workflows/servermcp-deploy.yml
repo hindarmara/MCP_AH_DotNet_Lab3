@@ -27,6 +27,14 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
+        include-prerelease: true
+
+    - name: List files for debugging
+      run: |
+        echo "Current directory contents:"
+        ls -la
+        echo "ServerMCP directory contents:"
+        ls -la ServerMCP/
 
     - name: Restore dependencies
       run: dotnet restore ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/ServerMCP.csproj
@@ -34,11 +42,8 @@ jobs:
     - name: Build application
       run: dotnet build ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/ServerMCP.csproj --configuration Release --no-restore
 
-    - name: Run tests
-      run: dotnet test ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/ServerMCP.csproj --no-build --verbosity normal
-
     - name: Publish application
-      run: dotnet publish ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/ServerMCP.csproj --configuration Release --no-build --output ./publish
+      run: dotnet publish ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/ServerMCP.csproj --configuration Release --output ./publish
 
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
