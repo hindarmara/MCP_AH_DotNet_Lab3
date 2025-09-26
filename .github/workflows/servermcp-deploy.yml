@@ -1,4 +1,4 @@
-name: Deploy ServerMCP to Azure - Retry
+name: Deploy ServerMCP to Azure - Updated Credentials
 
 on:
   push:
