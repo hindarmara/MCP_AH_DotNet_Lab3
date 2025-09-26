@@ -1,0 +1,48 @@
+name: Deploy ServerMCP to Azure
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'ServerMCP/**' ]
+  pull_request:
+    branches: [ main ]
+    paths: [ 'ServerMCP/**' ]
+  workflow_dispatch:
+
+env:
+  AZURE_WEBAPP_NAME: beverages-ai
+  AZURE_WEBAPP_PACKAGE_PATH: './ServerMCP'
+  DOTNET_VERSION: '9.0.x'
+  AZURE_RESOURCE_GROUP: lab-AH
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Restore dependencies
+      run: dotnet restore ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/ServerMCP.csproj
+
+    - name: Build application
+      run: dotnet build ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/ServerMCP.csproj --configuration Release --no-restore
+
+    - name: Run tests
+      run: dotnet test ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/ServerMCP.csproj --no-build --verbosity normal
+
+    - name: Publish application
+      run: dotnet publish ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/ServerMCP.csproj --configuration Release --no-build --output ./publish
+
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        package: ./publish

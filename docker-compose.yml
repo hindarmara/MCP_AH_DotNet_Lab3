@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  servermcp:
+    build:
+      context: ./ServerMCP
+      dockerfile: Dockerfile
+    ports:
+      - "5205:5205"
+      - "7224:7224"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:7224;http://+:5205
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=password
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetcore.pfx
+    volumes:
+      - ~/.aspnet/https:/https:ro
+      - ./ServerMCP/beverages.sqlite:/app/beverages.sqlite
+    networks:
+      - mcp-network
+
+networks:
+  mcp-network:
+    driver: bridge

@@ -1,0 +1,45 @@
+# ServerMCP Configuration
+app:
+  name: "ServerMCP"
+  version: "1.0.0"
+  description: "Model Context Protocol Server for Beverages AI"
+
+server:
+  urls:
+    http: "http://localhost:5205"
+    https: "https://localhost:7224"
+  
+  cors:
+    allowAnyOrigin: true
+    allowAnyMethod: true
+    allowAnyHeader: true
+
+database:
+  type: "SQLite"
+  connectionString: "DataSource=beverages.sqlite;Cache=Shared"
+  
+  migration:
+    autoApply: true
+
+mcp:
+  transport: "HTTP"
+  tools:
+    - "BeverageTools"
+    - "GreetingTool"
+
+logging:
+  level:
+    default: "Information"
+    aspNetCore: "Warning"
+
+deployment:
+  azure:
+    resourceGroup: "lahAH"
+    webAppName: "beverages-ai"
+    
+  docker:
+    image: "servermcp"
+    tag: "latest"
+    ports:
+      - "5205:5205"
+      - "7224:7224"
