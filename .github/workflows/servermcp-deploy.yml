@@ -25,15 +25,14 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '9.0.x'
-        include-prerelease: true
+        dotnet-quality: 'preview'
 
-    - name: Publish application directly
+    - name: Publish ServerMCP project directly
       run: |
-        cd ServerMCP
-        dotnet publish --configuration Release --output ../publish
+        dotnet publish ServerMCP/ServerMCP.csproj --configuration Release --output ./publish
 
     - name: Deploy to Azure Web App
-      uses: azure/webapps-deploy@v3
+      uses: azure/webapps-deploy@v2
       with:
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         package: ./publish
